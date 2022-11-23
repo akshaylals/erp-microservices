@@ -29,7 +29,7 @@ def get_all() -> str:
             "productId": item.productId,
             "quantity": item.quantity
         })
-    return jsonify({"cart": cart_items})
+    return jsonify(cart_items)
 
 
 @app.route("/cart/<int:id>", methods=['GET'])
@@ -47,18 +47,23 @@ def get_one(id) -> str:
 @app.route("/cart", methods=['POST'])
 def post() -> str:
     if not request.json:
-        return jsonify({"message": "bad request"}), 400
+        return jsonify({"message": "no data"}), 400
 
     productId = request.json['productId']
     quantity = request.json['quantity']
+    item = Cart(productId, quantity)
 
     try:
-        db.session.add(Cart(productId, quantity))
+        db.session.add(item)
         db.session.commit()
     except Exception as e:
         return jsonify({"message": "bad request"}), 400
     else:
-        return jsonify({"message": "success" }), 201
+        return jsonify({
+            "id": item.id,
+            "productId": item.productId,
+            "quantity": item.quantity
+        }), 201
 
 
 @app.route("/cart/<int:id>", methods=['DELETE'])
