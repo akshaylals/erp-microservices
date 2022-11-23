@@ -1,3 +1,3 @@
 ```$ docker build -t cart-api-docker .```
 
-```$ docker run --network=erpnet -h cartservice -d -p 5050:5000 cart-api-docker```
+```$ docker run --network=erpnet --name=cart-service -h cartservice -d cart-api-docker```
