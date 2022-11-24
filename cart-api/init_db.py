@@ -1,4 +1,9 @@
-from app import app, db
+from apps.models import Cart
 
-with app.app_context():
-    db.create_all()
+from apps import create_app
+from apps.db import db
+
+app = create_app()
+app.app_context().push()
+
+db.create_all()
