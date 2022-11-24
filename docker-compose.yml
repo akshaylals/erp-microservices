@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  cart:
+    build: ./cart-api
+    container_name: cart-service
+    hostname: cartservice
+    networks:
+      - erpnet
+  products:
+    build: ./products-api
+    container_name: products-service
+    hostname: productsservice
+    networks:
+      - erpnet
+  proxy:
+    build: ./nginx
+    container_name: proxy
+    networks:
+      - erpnet
+    ports:
+      - 5000:5000
+    depends_on:
+      - cart
+      - products
+networks:
+  erpnet:
+    driver: bridge
