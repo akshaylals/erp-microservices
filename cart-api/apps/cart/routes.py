@@ -4,8 +4,18 @@ from . import bp
 from apps.db import db
 from apps.models import Cart
 
+from authlib.integrations.flask_oauth2 import ResourceProtector
+from utils.validator import Auth0JWTBearerTokenValidator
+
+require_auth = ResourceProtector()
+validator = Auth0JWTBearerTokenValidator(
+    "dev-1ipheitoccjnh67e.us.auth0.com",
+    "https://dev-1ipheitoccjnh67e.us.auth0.com/api/v2/"
+)
+require_auth.register_token_validator(validator)
 
 @bp.route("", methods=['GET'])
+@require_auth(None)
 def get_all() -> str:
     cart_items = []
     for item in Cart.query.all():
@@ -18,6 +28,7 @@ def get_all() -> str:
 
 
 @bp.route("/<int:id>", methods=['GET'])
+@require_auth(None)
 def get_one(id) -> str:
     item = Cart.query.filter_by(id=id).first()
     if item:
@@ -30,6 +41,7 @@ def get_one(id) -> str:
     
 
 @bp.route("", methods=['POST'])
+@require_auth(None)
 def post() -> str:
     if not request.json:
         return jsonify({"message": "no data"}), 400
@@ -52,6 +64,7 @@ def post() -> str:
 
 
 @bp.route("/<int:id>", methods=['DELETE'])
+@require_auth(None)
 def delete(id) -> str:
     try:
         item = Cart.query.filter_by(id=id)
