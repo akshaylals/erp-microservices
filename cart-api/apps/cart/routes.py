@@ -3,20 +3,10 @@ from flask import jsonify, request
 from . import bp
 from apps.db import db
 from apps.models import Cart
-from apps.config import Config
-
-from authlib.integrations.flask_oauth2 import ResourceProtector
-from utils.validator import Auth0JWTBearerTokenValidator
-
-require_auth = ResourceProtector()
-validator = Auth0JWTBearerTokenValidator(
-    Config.AUTH0_DOMAIN,
-    Config.API_AUDIENCE
-)
-require_auth.register_token_validator(validator)
+from utils.auth import AuthError, requires_auth, requires_scope
 
 @bp.route("", methods=['GET'])
-@require_auth(None)
+@requires_auth
 def get_all() -> str:
     cart_items = []
     for item in Cart.query.all():
@@ -29,7 +19,7 @@ def get_all() -> str:
 
 
 @bp.route("/<int:id>", methods=['GET'])
-@require_auth(None)
+@requires_auth
 def get_one(id) -> str:
     item = Cart.query.filter_by(id=id).first()
     if item:
@@ -42,7 +32,7 @@ def get_one(id) -> str:
     
 
 @bp.route("", methods=['POST'])
-@require_auth(None)
+@requires_auth
 def post() -> str:
     if not request.json:
         return jsonify({"message": "no data"}), 400
@@ -65,7 +55,7 @@ def post() -> str:
 
 
 @bp.route("/<int:id>", methods=['DELETE'])
-@require_auth(None)
+@requires_auth
 def delete(id) -> str:
     try:
         item = Cart.query.filter_by(id=id)
@@ -77,3 +67,9 @@ def delete(id) -> str:
             return jsonify({}), 204
         else:
             return jsonify({"message": "Not found" }), 404
+
+@bp.errorhandler(AuthError)
+def handle_auth_error(ex):
+    response = jsonify(ex.error)
+    response.status_code = ex.status_code
+    return response
