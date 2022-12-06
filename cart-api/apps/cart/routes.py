@@ -3,14 +3,15 @@ from flask import jsonify, request
 from . import bp
 from apps.db import db
 from apps.models import Cart
+from apps.config import Config
 
 from authlib.integrations.flask_oauth2 import ResourceProtector
 from utils.validator import Auth0JWTBearerTokenValidator
 
 require_auth = ResourceProtector()
 validator = Auth0JWTBearerTokenValidator(
-    "dev-1ipheitoccjnh67e.us.auth0.com",
-    "https://dev-1ipheitoccjnh67e.us.auth0.com/api/v2/"
+    Config.AUTH0_DOMAIN,
+    Config.API_AUDIENCE
 )
 require_auth.register_token_validator(validator)
 
